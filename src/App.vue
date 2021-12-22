@@ -4,9 +4,12 @@
     <div class="mt-4">
       <div class="text-xl font-semibold">Moralis starter boilerplate v2</div>
       <div class="text-sm mt-1 text-moralis-green font-semibold">Powered by Vue.js</div>
+
+              <button @click="loginM">Connect walletMMM...</button>
     </div>
     <div class="mt-10">
       <button @click="switchNetwork" >Switch network</button>
+          <button @click="switchNetworkM" >Switch networkM</button>
       <template v-if="isAuthenticated">
         {{ user.get('ethAddress') }} <button @click="logout">Logout</button>
       </template>
@@ -38,6 +41,12 @@ export default {
       setUser(user)
     }
 
+       const loginM = async () => {
+      const user = await $moralis.Web3.authenticate()
+      console.log(user?.attributes?.ethAddress,'user.attributes.ethAddress')
+      setUser(user)
+    }
+
     const logout = async () => {
       await $moralis.User.logOut()
       setUser({})
@@ -61,7 +70,19 @@ export default {
         } catch (error) {
           alert(error.message);
         }
+    }
 
+      const switchNetworkM = async () =>{
+       try {
+         const web3 = await $moralis.Web3.enable();
+         console.log(web3,'web3 here');
+          await web3.currentProvider.request({
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: "0x89" }]
+          });
+        } catch (error) {
+          alert(error.message);
+        }
     }
 
     onMounted(() => {
@@ -70,10 +91,12 @@ export default {
 
     return {
       login,
+      loginM,
       logout,
       isAuthenticated: computed(() => Object.keys(store.state.user).length > 0),
       user: computed(() => store.state.user),
-      switchNetwork
+      switchNetwork,
+            switchNetworkM
     }
   }
 }
