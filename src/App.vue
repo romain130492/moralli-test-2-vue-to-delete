@@ -2,10 +2,12 @@
   <div class="text-moralis-gray">
     <img alt="Moralis logo" src="./assets/logo.svg">
     <div class="mt-4">
-      <div class="text-xl font-semibold">Moralis starter boilerplate v2</div>
+      <div class="text-xl font-semibold">Moralis starter boilerplate v4</div>
       <div class="text-sm mt-1 text-moralis-green font-semibold">Powered by Vue.js</div>
-
+      account:{{account}}
+<button @click="connectMetamast">connectMetamast</button>
               <button @click="loginM">Connect walletMMM...</button>
+              <button @click="addToken">addToken</button>
     </div>
     <div class="mt-10">
       <button @click="switchNetwork" >Switch network</button>
@@ -21,13 +23,14 @@
 </template>
 
 <script>
-import { onMounted, inject, computed } from 'vue'
+import { onMounted, inject, computed, ref } from 'vue'
 import { useStore } from 'vuex'
 /* import Moralis from 'moralis'; */
 
 export default {
   name: 'App',
   setup() {
+    let account = ref()
 /*     Moralis.initialize('xeefjYVA5VAUT2XHxLnax6v25kM6jLoQJWvzIoJVPkJfyo9rpyUnt4RtAKjVmjQi');
     Moralis.serverURL = 'https://qqmhgwptk8vf.usemoralis.com:2053/server'; */
     const store = useStore()
@@ -59,6 +62,22 @@ export default {
       }
     }
 
+const connectMetamast = async () =>{
+  try {
+      const web3 = await $moralis.Web3.enable();
+         console.log(web3,'web3 here');
+         
+      const accounts =  await web3.currentProvider.request({
+          method: 'eth_requestAccounts',
+        });
+        account.value = accounts
+        console.log(accounts,'the account here');
+    
+  } catch (error) {
+    console.error(error)
+  }
+  
+}
     const switchNetwork = async () =>{
        try {
          const web3 = await $moralis.Web3.enable({provider:"walletconnect"});
@@ -71,6 +90,37 @@ export default {
           alert(error.message);
         }
     }
+
+
+    const addToken = async () => {
+      try {
+        const web3 = await $moralis.Web3.enable();
+        console.log(web3,'the bwe3');
+        return web3.currentProvider
+          .request({
+            method: 'wallet_watchAsset',
+            params: {
+              type: 'ERC20',
+              options: {
+                address: '0x8ff36c854d901620476230dd8fba6780ad44c58a', // The address that the token is at.
+                symbol: 'GTR', // A ticket symbol or shorthand, up to 5 chars.
+                decimals: 18, // The number of decimals in the token
+                //image: 'https://gigs.gig-gly.com/icons/gig-gly-coin2.png', // A string url of the token logo // giggly-color.png
+              },
+            },
+          })
+          .then((success) => {
+            if (success) {
+              console.log('GTR token successfully added to wallet!', success);
+              return true;
+            }
+            return false;
+          })
+          .catch(console.error);
+      } catch (error) {
+        throw Error(`addGtrTokenToWallet(): ${error}`);
+      }
+    };
 
       const switchNetworkM = async () =>{
        try {
@@ -93,10 +143,13 @@ export default {
       login,
       loginM,
       logout,
+      connectMetamast,
       isAuthenticated: computed(() => Object.keys(store.state.user).length > 0),
       user: computed(() => store.state.user),
       switchNetwork,
-            switchNetworkM
+            switchNetworkM,
+            addToken,
+            account
     }
   }
 }
