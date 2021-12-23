@@ -2,7 +2,7 @@
   <div class="text-moralis-gray">
     <img alt="Moralis logo" src="./assets/logo.svg">
     <div class="mt-4">
-      <div class="text-xl font-semibold">Moralis starter boilerplate v4</div>
+      <div class="text-xl font-semibold">Moralis starter boilerplate v5</div>
       <div class="text-sm mt-1 text-moralis-green font-semibold">Powered by Vue.js</div>
       account:{{account}}
 <button @click="connectMetamast">connectMetamast</button>
@@ -16,7 +16,7 @@
         {{ user.get('ethAddress') }} <button @click="logout">Logout</button>
       </template>
       <template v-else>
-        <button @click="login">Connect wallet...</button>
+        <button @click="login">Connect walletGOOD...</button>
       </template>
     </div>
   </div>
@@ -39,7 +39,7 @@ export default {
     const setUser = (payload) => store.commit('setUser', payload)
     
     const login = async () => {
-      const user = await $moralis.Web3.authenticate({provider:"walletconnect"})
+      const user = await $moralis.Web3.authenticate({provider:"walletconnect", chainId:137 })
       console.log(user?.attributes?.ethAddress,'user.attributes.ethAddress')
       setUser(user)
     }
